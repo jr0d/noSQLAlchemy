@@ -1,0 +1,56 @@
+nosqlalchemy
+
+usage:
+
+
+from nosqlalchemy import (
+    Collection,
+    Key,
+    ListCollection,
+    MongoDBInterface,
+    MongoSession,
+    SubCollection,
+)
+
+class SampleSubCollection(SubCollection):
+    __name__ = 'sample_sub_collection'
+
+    sub_key1 = Key()
+    sub_key2 = Key()
+
+class SampleListCollection(ListCollection):
+    __name__ = 'sample_list_collection'
+    __list_element_type__ = int  # base collection is set to object
+                                 # do not override to store any object type
+                                 # in the list
+
+class SampleCollection(Collection):
+    __name__ = 'sample'
+    __database__ = 'test'
+    __primary_key__ = 'key1'  # declares a unique value as unique within the
+                              # collection.
+
+    key1 = Key()
+    key2 = Key()
+    sub_collection = SampleSubCollection()
+    list_collection = SampleListCollection()
+
+
+mdi = MongoDBInterface() # args host='host', port='27017'
+MSession = MongoSession(mdi)
+
+sample_collection = SampleCollection()
+sample_collection.key1 = 'key1'
+sample_collection.key2 = 2
+sample_collection.sub_collection.sub_key1 = 'sub_key1'
+sample_collection.sub_collection.sub_key2 = 2
+sample_collection.list_collection.append(1)
+sample_collection.list_collection = 2
+
+print sample_collection
+
+print type(MSession.add(sample_collection))
+col = MSession.query(SampleCollection).find_one({'sub_collection.sub_key2': 2})
+print col
+MSession.drop_all(SampleCollection)
+

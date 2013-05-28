@@ -13,7 +13,6 @@ __all__ = [
     'ObjectId'
 ]
 
-ObjectId = ObjectId
 
 class MongoSession(object):
     def __init__(self, mdi=None):

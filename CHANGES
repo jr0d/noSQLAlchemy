@@ -1,3 +1,11 @@
+commit 82bab92adebcb452b832a1166990602d8d65d47e
+Author: Jared Rodriguez <jared.rodriguez@rackspace.com>
+Date:   Sun May 26 14:45:43 2013 -0500
+
+    Creating a python package and adding tests
+    
+    Added SubCollection and ListCollection support
+
 commit 259a066cfcb974984c959c26bd0f6ea5139f8343
 Author: Jared Rodriguez <jrod@blacknode.net>
 Date:   Fri Jan 6 18:16:01 2012 -0600

@@ -1,3 +1,15 @@
+commit 3f0fdfc871e3fd55e57999e45567bdb372c0bc8c
+Author: Jared Rodriguez <jared.rodriguez@rackspace.com>
+Date:   Tue May 28 09:32:01 2013 -0500
+
+    remove unneeded assignment
+
+commit a9328a037100e095eea14c376f004d6558191bc7
+Author: Jared Rodriguez <jared.rodriguez@rackspace.com>
+Date:   Tue May 28 09:28:05 2013 -0500
+
+    Changes
+
 commit 82bab92adebcb452b832a1166990602d8d65d47e
 Author: Jared Rodriguez <jared.rodriguez@rackspace.com>
 Date:   Sun May 26 14:45:43 2013 -0500

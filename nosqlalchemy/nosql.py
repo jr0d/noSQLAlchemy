@@ -41,7 +41,7 @@ class MongoSession(object):
         if not collection_obj.time_created:
             collection_obj.time_created = now
         collection_obj.time_updated = now
-        collection.save(collection_obj)
+        return collection.save(collection_obj)
 
     def remove(self, collection_obj):
         collection = self._get_collection_from_object(collection_obj)

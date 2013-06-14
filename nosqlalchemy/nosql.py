@@ -22,7 +22,7 @@ class MongoSession(object):
         database = self.connection[collection_obj.__database__]
         return database[collection_obj.__name__]
 
-    def query(self, collection_cls=None, **kw):
+    def query(self, collection_cls=None):
     ## TODO, verification of collection_cls. __mro__ ?
         return Mquery(self.connection, collection_cls)
 
@@ -82,6 +82,9 @@ class Mquery(object):
         for item in data:
             inst = self.col(self.database, **item)
             yield inst
+
+    def remove(self, kw):
+        return self.collection.remove(kw)
 
     def count(self, kw=None):
         if not kw:

@@ -181,6 +181,18 @@ class TestNoSQL(unittest.TestCase):
         col = mdi.get_collection(cdb, 'tempdb')
         self.assertIsNotNone(col, 'Could not grab raw collection')
 
+    def test_bulk_remove(self):
+        for x in xrange(10):
+            tc = TempCollection()
+            tc.test_key_1 = str(x)
+            tc.test_key_2 = 'nerf'
+            MSession.save(tc)
+        tcs = list(MSession.query(TempCollection).find(dict(test_key_2='nerf')))
+        self.assertEqual(len(tcs), 10)
+        MSession.query(TempCollection).remove(dict(test_key_2='nerf'))
+        tcs = list(MSession.query(TempCollection).find(dict(test_key_2='nerf')))
+        self.assertEqual(len(tcs), 0)
+
     def tearDown(self):
         tc = TempCollection.get_by_oid(self.oid)
         tc.remove()

@@ -219,12 +219,15 @@ class Collection(dict):
                 object.__setattr__(self, name, None)
             if isinstance(obj, (SubCollection, ListCollection)):
                 self.__keys__.append(name)
-                self[name] = obj
+                self[name] = obj.__class__()
 
         for key in kwargs.keys():
             if key in self.__keys__:
                 if isinstance(self.get(key), SubCollection):
-                    self[key] = self[key].__class__(**kwargs[key])
+                    if isinstance(kwargs[key], (SubCollection, dict)):
+                        self[key] = self[key].__class__(**kwargs[key])
+                    else:
+                        self[key] = self[key].__class__()
                 elif isinstance(self.get(key), ListCollection):
                     if not isinstance(kwargs[key], (ListCollection, list)):
                         raise ValueError(

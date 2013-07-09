@@ -129,8 +129,16 @@ class Key(object):
         self.data = None
 
 
-class SubCollection(dict):
+class SubCollectionMeta(dict):
     __keys__ = list()
+
+    def __new__(cls, *args, **kwargs):
+        obj = super(SubCollectionMeta, cls).__new__(cls)
+        obj.__keys__ = list()
+        return obj
+
+
+class SubCollection(SubCollectionMeta):
 
     def __init__(self, **kwargs):
         super(SubCollection, self).__init__()
@@ -161,7 +169,22 @@ class ListCollection(list):
         list.append(self, obj)
 
 
-class Collection(dict):
+class CollectionMeta(dict):
+    __keys__ = list()
+    _id = Key()
+    time_created = Key()
+    time_updated = Key()
+
+    def __new__(cls, *args, **kwargs):
+        obj = super(CollectionMeta, cls).__new__(cls)
+        obj.__keys__ = ['_id', 'time_created', 'time_updated']
+        for key in obj.__keys__:
+            if not key == '_id':
+                obj[key] = None
+        return obj
+
+
+class Collection(CollectionMeta):
     """
     I would like to be able to define collections declaratively.
     Because pymongo takes dictionaries, Collection subclasses dict.
@@ -189,14 +212,9 @@ class Collection(dict):
     """
     __name__ = None
     __database__ = None
-    __keys__ = list()
-    _id = Key()
-    time_created = Key()
-    time_updated = Key()
 
     def __init__(self, session=None, **kwargs):
         super(Collection, self).__init__()
-        self.__keys__ = ['_id', 'time_created', 'time_updated']
         self.session = session
         self.database = None
         self.collection = None
@@ -205,11 +223,6 @@ class Collection(dict):
             self.connection = self.session.connection
             self.database = self.connection[self.__database__]
             self.collection = self.database[self.__name__]
-
-        # create embedded keys
-        for key in self.__keys__:
-            if not key == '_id':
-                self[key] = None
 
         # load keys from class variables
         for name, obj in self.__class__.__dict__.items():
@@ -246,7 +259,7 @@ class Collection(dict):
         if item in self.__keys__:
             if isinstance(self[item], SubCollection):
                 for subitem in self[item].__keys__:
-                    self[item][subitem] = value[subitem]
+                    setattr(self[item], subitem, value[subitem])
             if isinstance(self[item], (ListCollection, list)):
                 if not isinstance(value, (ListCollection, list)):
                     self[item].append(value)

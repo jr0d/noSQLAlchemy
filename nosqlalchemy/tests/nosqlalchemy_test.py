@@ -98,8 +98,8 @@ class TestNoSQL(unittest.TestCase):
         tc.sub_collection = tsc
         MSession.save(tc)
         tc = TempCollection.get_by_oid(self.oid)
-        self.assertEqual(tc.sub_collection.subkey1, 'Subkey_1')
-        self.assertEqual(tc.sub_collection['subkey2'], 'Subkey_2')
+        self.assertEqual(tc.sub_collection['subkey1'], 'Subkey_1')
+        self.assertEqual(tc.sub_collection.subkey2, 'Subkey_2')
         self.assertTrue(isinstance(tc.sub_collection, TempSubCollection))
 
     def test_list_collection(self):

@@ -10,7 +10,8 @@ __all__ = [
     'Collection',
     'SubCollection',
     'ListCollection',
-    'ObjectId'
+    'ObjectId',
+    'LazyCollection'
 ]
 
 
@@ -129,6 +130,24 @@ class Key(object):
         self.data = None
 
 
+class LazyCollection(dict):
+    """
+    A dictionary type implementing attribute style value access.
+    """
+    def __init__(self, **kwargs):
+        super(LazyCollection, self).__init__(kwargs)
+        for k, v in self.items():
+            object.__setattr__(self, k, v)
+
+    def __setattr__(self, key, value):
+        self[key] = value
+        object.__setattr__(self, key, value)
+
+    def __setitem__(self, key, value):
+        dict.__setitem__(self, key, value)
+        object.__setattr__(self, key, value)
+
+
 class SubCollectionMeta(dict):
     __keys__ = list()
 
@@ -139,7 +158,6 @@ class SubCollectionMeta(dict):
 
 
 class SubCollection(SubCollectionMeta):
-
     def __init__(self, **kwargs):
         super(SubCollection, self).__init__()
 
@@ -230,7 +248,7 @@ class Collection(CollectionMeta):
                 self.__keys__.append(name)
                 self[name] = None  # TODO: set to empty type
                 object.__setattr__(self, name, None)
-            if isinstance(obj, (SubCollection, ListCollection)):
+            if isinstance(obj, (SubCollection, ListCollection, LazyCollection)):
                 self.__keys__.append(name)
                 self[name] = obj.__class__()
 
@@ -241,12 +259,14 @@ class Collection(CollectionMeta):
                         self[key] = self[key].__class__(**kwargs[key])
                     else:
                         self[key] = self[key].__class__()
+                elif isinstance(self.get(key), LazyCollection):
+                    self[key] = self[key].__class__(**kwargs[key])
                 elif isinstance(self.get(key), ListCollection):
                     if not isinstance(kwargs[key], (ListCollection, list)):
                         raise ValueError(
                             'attempting to populate list %s with '
                             'non-list value, %s' % (key, str(kwargs[key])))
-                    if self[key].__list_element_type__.__base__ == SubCollection:
+                    if self[key].__list_element_type__.__base__ in [SubCollection, LazyCollection, dict]:
                         for el in kwargs[key]:
                             self[key].append(self[key].__list_element_type__(**el))
                     else:

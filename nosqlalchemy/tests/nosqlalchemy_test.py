@@ -7,7 +7,8 @@ from nosqlalchemy import (
     SubCollection,
     MongoDBInterface,
     MongoSession,
-    ObjectId
+    ObjectId,
+    LazyCollection
 )
 
 mdi = MongoDBInterface()
@@ -44,6 +45,7 @@ class TempCollection(Collection):
     sub_collection = TempSubCollection()
     list_collection = TempListCollection()
     sub_collection_list = SubCollectionList()
+    lazy_collection = LazyCollection()
 
     @classmethod
     def get_by_oid(cls, oid):
@@ -135,6 +137,21 @@ class TestNoSQL(unittest.TestCase):
         self.assertTrue(isinstance(tc.sub_collection_list[0], XSubCollection))
         self.assertEqual(tc.sub_collection_list[0]['x_item1'], 'One')
         self.assertEqual(tc.sub_collection_list[0].x_item2, 2)
+
+    def test_lazy_collection(self):
+        tc = TempCollection.get_by_oid(self.oid)
+        tc.lazy_collection.str_1 = 'Something1'
+        tc.lazy_collection.num_1 = 4
+        tc.lazy_collection.dict_1 = {'1': 2}
+        tc.lazy_collection.list_1 = [1, 2, 3]
+
+        MSession.save(tc)
+
+        tc = TempCollection.get_by_oid(self.oid)
+        self.assertEqual(tc.lazy_collection.str_1, 'Something1')
+        self.assertEquals(tc.lazy_collection.num_1, 4)
+        self.assertEquals(tc.lazy_collection.dict_1, {'1': 2})
+        self.assertEquals(tc.lazy_collection['list_1'], [1, 2, 3])
 
     def test_mongo_remove(self):
         tc = TempCollection()

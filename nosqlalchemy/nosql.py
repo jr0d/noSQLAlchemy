@@ -166,10 +166,17 @@ class SubCollection(SubCollectionMeta):
                 self.__keys__.append(name)
                 self[name] = None
                 object.__setattr__(self, name, None)
+            elif isinstance(obj, LazyCollection):
+                self.__keys__.append(name)
+                self[name] = LazyCollection()
+                object.__setattr__(self, name, self[name])
 
         for key in kwargs.keys():
             if key in self.__keys__:
-                self[key] = kwargs[key]
+                if isinstance(self[key], LazyCollection):
+                    self[key] = self[key].__class__(**kwargs[key])
+                else:
+                    self[key] = kwargs[key]
                 object.__setattr__(self, key, self[key])
 
     def __setattr__(self, item, value):

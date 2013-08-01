@@ -33,6 +33,12 @@ class TempListCollection(ListCollection):
     __list_element_type__ = int
 
 
+class LazySubCollection(SubCollection):
+    module_name = Key()
+    lazy_1 = LazyCollection()
+    lazy_2 = LazyCollection()
+
+
 class TempCollection(Collection):
     __name__ = 'tempdb'
     __database__ = 'charlie'
@@ -46,6 +52,9 @@ class TempCollection(Collection):
     list_collection = TempListCollection()
     sub_collection_list = SubCollectionList()
     lazy_collection = LazyCollection()
+    lazy_sub_collection = LazySubCollection()
+
+
 
     @classmethod
     def get_by_oid(cls, oid):
@@ -144,7 +153,9 @@ class TestNoSQL(unittest.TestCase):
         tc.lazy_collection.num_1 = 4
         tc.lazy_collection.dict_1 = {'1': 2}
         tc.lazy_collection.list_1 = [1, 2, 3]
-
+        tc.lazy_sub_collection.module_name = 'My module'
+        tc.lazy_sub_collection.lazy_1.key1 = {'1': 2}
+        tc.lazy_sub_collection.lazy_2.key2 = 'Lazy2'
         MSession.save(tc)
 
         tc = TempCollection.get_by_oid(self.oid)
@@ -152,6 +163,11 @@ class TestNoSQL(unittest.TestCase):
         self.assertEquals(tc.lazy_collection.num_1, 4)
         self.assertEquals(tc.lazy_collection.dict_1, {'1': 2})
         self.assertEquals(tc.lazy_collection['list_1'], [1, 2, 3])
+
+        self.assertEqual(tc.lazy_sub_collection.module_name, 'My module')
+        self.assertEqual(tc.lazy_sub_collection.lazy_1.key1, {'1': 2})
+        self.assertEqual(tc.lazy_sub_collection.lazy_2.key2, 'Lazy2')
+
 
     def test_mongo_remove(self):
         tc = TempCollection()

@@ -54,8 +54,6 @@ class TempCollection(Collection):
     lazy_collection = LazyCollection()
     lazy_sub_collection = LazySubCollection()
 
-
-
     @classmethod
     def get_by_oid(cls, oid):
         if isinstance(oid, (str, unicode)):
@@ -168,7 +166,6 @@ class TestNoSQL(unittest.TestCase):
         self.assertEqual(tc.lazy_sub_collection.lazy_1.key1, {'1': 2})
         self.assertEqual(tc.lazy_sub_collection.lazy_2.key2, 'Lazy2')
 
-
     def test_mongo_remove(self):
         tc = TempCollection()
         tc.test_key_1 = 'Tell Tale Heart'
@@ -225,6 +222,10 @@ class TestNoSQL(unittest.TestCase):
         MSession.query(TempCollection).remove(dict(test_key_2='nerf'))
         tcs = list(MSession.query(TempCollection).find(dict(test_key_2='nerf')))
         self.assertEqual(len(tcs), 0)
+
+    def test_object_id_property(self):
+        tc = TempCollection.get_by_oid(self.oid)
+        self.assertIsInstance(tc.object_id, ObjectId)
 
     def tearDown(self):
         tc = TempCollection.get_by_oid(self.oid)

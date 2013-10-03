@@ -39,6 +39,7 @@ class MongoSession(object):
         database = self.connection[collection_obj.__database__]
         collection = database[collection_obj.__name__]
         now = time.time()
+        # Possible bug, we would never try to save time_created
         if not collection_obj.time_created:
             collection_obj.time_created = now
         collection_obj.time_updated = now
@@ -319,3 +320,7 @@ class Collection(CollectionMeta):
         if '_id' in temp:
             temp['_id'] = str(temp['_id'])
         return temp
+
+    @property
+    def object_id(self):
+        return self._id

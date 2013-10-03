@@ -129,7 +129,7 @@ class Key(object):
     def __init__(self, default=None, data_type='no_type'):
         self.data_type = data_type
         self.data = None
-        self.default = None
+        self.default = default
 
 class LazyCollection(dict):
     """
@@ -167,15 +167,24 @@ class SubCollection(SubCollectionMeta):
                 self.__keys__.append(name)
                 self[name] = obj.default
                 object.__setattr__(self, name, obj.default)
-            elif isinstance(obj, LazyCollection):
+            if isinstance(obj, (ListCollection, LazyCollection)):
                 self.__keys__.append(name)
-                self[name] = LazyCollection()
-                object.__setattr__(self, name, self[name])
+                self[name] = obj.__class__()
 
         for key in kwargs.keys():
             if key in self.__keys__:
                 if isinstance(self[key], LazyCollection):
                     self[key] = self[key].__class__(**kwargs[key])
+                elif isinstance(self.get(key), ListCollection):
+                    if not isinstance(kwargs[key], (ListCollection, list)):
+                        raise ValueError(
+                            'attempting to populate list %s with '
+                            'non-list value, %s' % (key, str(kwargs[key])))
+                    if self[key].__list_element_type__.__base__ in [SubCollection, LazyCollection, dict]:
+                        for el in kwargs[key]:
+                            self[key].append(self[key].__list_element_type__(**el))
+                    else:
+                        self[key] = self[key].__class__(kwargs[key])
                 else:
                     self[key] = kwargs[key]
                 object.__setattr__(self, key, self[key])

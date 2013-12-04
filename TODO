@@ -1,0 +1,6 @@
+1. __primary_key__ uniqueness enforcement on update
+2. Base data types: Unicode, Integer, and Float
+3. Database and collection level operations
+4. atomic mass updates
+5. Documentation
+6. Dynamic document extension

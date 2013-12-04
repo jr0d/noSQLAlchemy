@@ -1,3 +1,57 @@
+commit ed63d179cbabd504714072d5a9928aea3a5e62d0
+Author: Jared Rodriguez <jared.rodriguez@rackspace.com>
+Date:   Thu Aug 1 00:37:24 2013 -0500
+
+    LazyCollection fixes
+
+commit 11319759a2888d1a0c75d0d568fe214c32b79d8a
+Author: Jared Rodriguez <jared.rodriguez@rackspace.com>
+Date:   Mon Jul 29 17:42:38 2013 -0500
+
+    Adding LazyCollections test
+
+commit dc69acfc910d10c8677121993a8ad1912ea7ff07
+Author: Jared Rodriguez <jared.rodriguez@rackspace.com>
+Date:   Mon Jul 29 17:42:16 2013 -0500
+
+    Adding LazyCollections
+
+commit 5f6b5a2b22be3f9d67dfa23fac39c0e8f843fce5
+Author: Jared Rodriguez <jared.rodriguez@rackspace.com>
+Date:   Tue Jul 9 15:48:34 2013 -0500
+
+    fix class variable collisions
+
+commit 17d0d5cb59388bfad5a6f9bdb0aceb35eb78d3ad
+Author: Jared Rodriguez <jared.rodriguez@rackspace.com>
+Date:   Tue Jul 9 15:47:51 2013 -0500
+
+    Reverse order of refernce for more robust testing
+
+commit 9de5592e07196102ccbbff3f5c149ed601417f11
+Author: Jared Rodriguez <jared.rodriguez@rackspace.com>
+Date:   Fri Jun 14 18:50:16 2013 -0500
+
+    instansiate empty subcollections and listcollections on init
+
+commit 85a64eb869ab6006c8c1c22caff7bbd81997b5cf
+Author: Jared Rodriguez <jared.rodriguez@rackspace.com>
+Date:   Fri Jun 14 17:55:19 2013 -0500
+
+    return the oid on save
+
+commit 567d66c16bec355128f607857e0f9cbafb12a183
+Author: Jared Rodriguez <jared.rodriguez@rackspace.com>
+Date:   Fri Jun 14 14:46:20 2013 -0500
+
+    add remove() method to query object for bulk removal
+
+commit 9bdc3c0e57d1b277bb5a2af84cc4fd3585ed385e
+Author: Jared Rodriguez <jared.rodriguez@rackspace.com>
+Date:   Tue May 28 09:32:52 2013 -0500
+
+    Update changelog
+
 commit 3f0fdfc871e3fd55e57999e45567bdb372c0bc8c
 Author: Jared Rodriguez <jared.rodriguez@rackspace.com>
 Date:   Tue May 28 09:32:01 2013 -0500

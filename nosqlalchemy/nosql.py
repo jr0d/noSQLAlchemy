@@ -68,9 +68,7 @@ class Mquery(object):
         generator of baked Collection objects.
         """
         for item in self.collection.find():
-            inst = self.col(self.database)
-            for key in inst.__keys__:
-                inst[key] = item.get(key)
+            inst = self.col(self.database, **item)
             yield inst
 
     def find_one(self, kw):

@@ -54,3 +54,37 @@ col = MSession.query(SampleCollection).find_one({'sub_collection.sub_key2': 2})
 print col
 MSession.drop_all(SampleCollection)
 
+
+Test:
+
+
+coverage run --include=nosqlalchemy/__init__.py,nosqlalchemy/nosql.py --omit=nosqlalchemy/tests setup.py test
+
+test_bulk_remove (nosqlalchemy.tests.nosqlalchemy_test.TestNoSQL) ... ok
+test_lazy_collection (nosqlalchemy.tests.nosqlalchemy_test.TestNoSQL) ... ok
+test_list_collection (nosqlalchemy.tests.nosqlalchemy_test.TestNoSQL) ... ok
+test_mongo_create (nosqlalchemy.tests.nosqlalchemy_test.TestNoSQL) ... ok
+test_mongo_get (nosqlalchemy.tests.nosqlalchemy_test.TestNoSQL) ... ok
+test_mongo_misc (nosqlalchemy.tests.nosqlalchemy_test.TestNoSQL) ... ok
+test_mongo_query (nosqlalchemy.tests.nosqlalchemy_test.TestNoSQL) ... ok
+test_mongo_remove (nosqlalchemy.tests.nosqlalchemy_test.TestNoSQL) ... ok
+test_mongo_update (nosqlalchemy.tests.nosqlalchemy_test.TestNoSQL) ... ok
+test_object_id_property (nosqlalchemy.tests.nosqlalchemy_test.TestNoSQL) ... ok
+test_raw_mdi (nosqlalchemy.tests.nosqlalchemy_test.TestNoSQL) ... ok
+test_sub_collection (nosqlalchemy.tests.nosqlalchemy_test.TestNoSQL) ... ok
+test_sub_collection_list (nosqlalchemy.tests.nosqlalchemy_test.TestNoSQL) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.039s
+
+OK
+
+coverage report -m
+
+Name                    Stmts   Miss  Cover   Missing
+-----------------------------------------------------
+nosqlalchemy/__init__       1      0   100%
+nosqlalchemy/nosql        207     10    95%   44, 179-187, 278, 283, 304
+-----------------------------------------------------
+TOTAL                     208     10    95%
+

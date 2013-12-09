@@ -227,6 +227,14 @@ class TestNoSQL(unittest.TestCase):
         tc = TempCollection.get_by_oid(self.oid)
         self.assertIsInstance(tc.object_id, ObjectId)
 
+    def test_collection_update(self):
+        tc = TempCollection.get_by_oid(self.oid)
+        update_data = {'lazy_sub_collection.module_name': 'test_collection_update'}
+        tc.collection_update(update_data)
+        self.assertEqual(tc.lazy_sub_collection.module_name, 'test_collection_update')
+        tc = TempCollection.get_by_oid(self.oid)
+        self.assertEqual(tc.lazy_sub_collection.module_name, 'test_collection_update')
+
     def tearDown(self):
         tc = TempCollection.get_by_oid(self.oid)
         tc.remove()

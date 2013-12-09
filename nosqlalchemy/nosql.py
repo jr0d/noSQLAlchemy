@@ -53,6 +53,11 @@ class MongoSession(object):
         collection = self._get_collection_from_object(collection_cls())
         collection.remove({})
 
+    def update(self, collection_cls, update_spec, update_data, multi=False):
+        collection = self._get_collection_from_object(collection_cls)
+        update_data.update(dict(time_updated=time.time()))
+        collection.update(update_spec, {'$set': update_data}, multi=multi)
+
 
 class Mquery(object):
     def __init__(self, connection, col):
@@ -202,6 +207,10 @@ class ListCollection(list):
         list.append(self, obj)
 
 
+class CollectionInstanceException(Exception):
+    pass
+
+
 class CollectionMeta(dict):
     __keys__ = list()
     _id = Key()
@@ -257,6 +266,10 @@ class Collection(CollectionMeta):
             self.database = self.connection[self.__database__]
             self.collection = self.database[self.__name__]
 
+        self._build(kwargs)
+        self.__setitem__ = self.__setitem_after_init__
+
+    def _build(self, kwargs):
         # load keys from class variables
         for name, obj in self.__class__.__dict__.items():
             if isinstance(obj, Key):
@@ -290,19 +303,23 @@ class Collection(CollectionMeta):
                     self[key] = kwargs[key]
                 object.__setattr__(self, key, self[key])
 
-    def __setattr__(self, item, value):
-        if item in self.__keys__:
-            if isinstance(self[item], SubCollection):
-                for subitem in self[item].__keys__:
-                    setattr(self[item], subitem, value[subitem])
-            if isinstance(self[item], (ListCollection, list)):
+    def __setattr__(self, attr, value):
+        if attr in self.__keys__:
+            if isinstance(self[attr], SubCollection):
+                for subitem in self[attr].__keys__:
+                    setattr(self[attr], subitem, value[subitem])
+            if isinstance(self[attr], (ListCollection, list)):
                 if not isinstance(value, (ListCollection, list)):
-                    self[item].append(value)
+                    self[attr].append(value)
                 else:
-                    self[item] += value
-                value = self[item]
-            self[item] = value
-        object.__setattr__(self, item, value)
+                    self[attr] += value
+                value = self[attr]
+            self[attr] = value
+        object.__setattr__(self, attr, value)
+
+    def __setitem_after_init__(self, key, value):
+        object.__setattr__(self, key, value)
+        dict.__setitem__(self, key, value)
 
     def remove(self):
         self.collection.remove(self['_id'])
@@ -330,4 +347,15 @@ class Collection(CollectionMeta):
 
     @property
     def object_id(self):
+        if not isinstance(self._id, ObjectId):
+            return None
         return self._id
+
+    def collection_update(self, update_data):
+        if not self.object_id:
+            raise CollectionInstanceException('This instance is not mapped to an object_id.')
+        spec = dict(_id=self.object_id)
+        update_data.update(dict(time_updated=time.time()))
+        self.collection.update(spec, {'$set': update_data})
+        data = self.collection.find_one(spec)
+        self.__init__(self.session, **data)

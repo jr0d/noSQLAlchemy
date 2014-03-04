@@ -5,14 +5,14 @@ from nosqlalchemy import (
     Key,
     ListCollection,
     SubCollection,
-    MongoDBInterface,
+    MongoDBConnection,
     MongoSession,
     ObjectId,
     LazyCollection
 )
 
-mdi = MongoDBInterface()
-MSession = MongoSession(mdi)
+client = MongoDBConnection()
+MSession = MongoSession(client)
 
 
 class XSubCollection(SubCollection):
@@ -185,17 +185,6 @@ class TestNoSQL(unittest.TestCase):
                 TempCollection).find_one({'test_key_3': 'The Gold Bug'}),
             'Object is still present')
 
-    def test_mongo_misc(self):
-        tc = TempCollection.get_by_oid(self.oid)
-        enc_safe = tc.json_encode()
-        self.assertEqual(enc_safe['_id'], str(self.oid))
-
-        unicode(tc)
-        str(tc)
-        tc.__repr__()
-
-        self.assertTrue(tc.present())
-
     def test_mongo_query(self):
         collections = list(MSession.query(TempCollection).all())
         self.assertTrue(len(collections) > 0)
@@ -207,8 +196,8 @@ class TestNoSQL(unittest.TestCase):
         self.assertEqual(MSession.query(TempCollection).count({'_id': self.oid}), 1)
 
     def test_raw_mdi(self):
-        cdb = mdi.get_database('charlie')
-        col = mdi.get_collection(cdb, 'tempdb')
+        cdb = client.get_database('charlie')
+        col = cdb['tempdb']
         self.assertIsNotNone(col, 'Could not grab raw collection')
 
     def test_bulk_remove(self):

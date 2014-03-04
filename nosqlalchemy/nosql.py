@@ -1,6 +1,6 @@
 import time
 from bson.objectid import ObjectId
-from pymongo import Connection
+from pymongo import MongoClient, MongoReplicaSetClient
 
 
 __all__ = [
@@ -16,8 +16,8 @@ __all__ = [
 
 
 class MongoSession(object):
-    def __init__(self, mdi=None):
-        self.connection = mdi.connection
+    def __init__(self, client=None):
+        self.connection = client.connection
 
     def _get_collection_from_object(self, collection_obj):
         database = self.connection[collection_obj.__database__]
@@ -97,19 +97,19 @@ class Mquery(object):
         return self.collection.find(kw).count()
 
 
-class MongoDBInterface(object):
+class MongoDBConnection(object):
     """
     pymongo bindings interface.
     """
 
-    def __init__(self, ip='127.0.0.1', port=27017):
-        self.connection = Connection(ip, port)
+    def __init__(self, host_or_url='127.0.0.1:27017', replica_set='', **kwargs):
+        if replica_set:
+            self.connection = MongoReplicaSetClient(host_or_url, replSet=replica_set, **kwargs)
+        else:
+            self.connection = MongoClient(host_or_url, **kwargs)
 
     def get_database(self, database):
         return self.connection[database]
-
-    def get_collection(self, database, collection):
-        return database[collection]
 
 
 class Key(object):
@@ -338,12 +338,6 @@ class Collection(CollectionMeta):
 
     def __repr__(self):
         return self.__unicode__()
-
-    def json_encode(self):
-        temp = dict(self)
-        if '_id' in temp:
-            temp['_id'] = str(temp['_id'])
-        return temp
 
     @property
     def object_id(self):

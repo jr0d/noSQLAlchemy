@@ -5,13 +5,13 @@ from pymongo import MongoClient, MongoReplicaSetClient
 
 __all__ = [
     'MongoSession',
-    'MongoDBInterface',
     'Key',
     'Collection',
     'SubCollection',
     'ListCollection',
     'ObjectId',
-    'LazyCollection'
+    'LazyCollection',
+    'MongoDBConnection'
 ]
 
 
@@ -104,7 +104,7 @@ class MongoDBConnection(object):
 
     def __init__(self, host_or_url='127.0.0.1:27017', replica_set='', **kwargs):
         if replica_set:
-            self.connection = MongoReplicaSetClient(host_or_url, replSet=replica_set, **kwargs)
+            self.connection = MongoReplicaSetClient(host_or_url, replicaSet=replica_set, **kwargs)
         else:
             self.connection = MongoClient(host_or_url, **kwargs)
 

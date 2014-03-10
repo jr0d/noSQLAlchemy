@@ -40,7 +40,7 @@ class LazySubCollection(SubCollection):
 
 
 class TempCollection(Collection):
-    __name__ = 'tempdb'
+    __collection_name__ = 'tempdb'
     __database__ = 'charlie'
     __primary_key__ = 'test_key_1'
 

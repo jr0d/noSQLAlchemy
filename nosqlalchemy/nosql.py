@@ -21,7 +21,7 @@ class MongoSession(object):
 
     def _get_collection_from_object(self, collection_obj):
         database = self.connection[collection_obj.__database__]
-        return database[collection_obj.__name__]
+        return database[collection_obj.__collection_name__]
 
     def query(self, collection_cls=None):
     ## TODO, verification of collection_cls. __mro__ ?
@@ -29,7 +29,7 @@ class MongoSession(object):
 
     def add(self, collection_obj):
         database = self.connection[collection_obj.__database__]
-        collection = database[collection_obj.__name__]
+        collection = database[collection_obj.__collection_name__]
         now = time.time()
         collection_obj.time_created = now
         collection_obj.time_updated = now
@@ -37,7 +37,7 @@ class MongoSession(object):
 
     def save(self, collection_obj):
         database = self.connection[collection_obj.__database__]
-        collection = database[collection_obj.__name__]
+        collection = database[collection_obj.__collection_name__]
         now = time.time()
         # Possible bug, we would never try to save time_created
         if not collection_obj.time_created:
@@ -56,14 +56,13 @@ class MongoSession(object):
     def update(self, collection_cls, update_spec, update_data, multi=False):
         collection = self._get_collection_from_object(collection_cls)
         update_data.update(dict(time_updated=time.time()))
-        collection.update(update_spec, {'$set': update_data}, multi=multi)
-
+        return collection.update(update_spec, {'$set': update_data}, multi=multi)
 
 class Mquery(object):
     def __init__(self, connection, col):
         self.connection = connection
         self.col = col
-        self.col_name = self.col().__name__
+        self.col_name = self.col().__collection_name__
         self.database_name = self.col.__database__
         self.database = self.connection[self.database_name]
         self.collection = self.database[self.col_name]
@@ -237,7 +236,7 @@ class Collection(CollectionMeta):
     early example of how this might work:
 
     class User(Collection):
-        __name__ = 'kerror'
+        __collection_name__ = 'kerror'
 
         user = Key('no_type')
         email = Key('no_type')
@@ -252,7 +251,7 @@ class Collection(CollectionMeta):
     the class interface, and provides a drop in replacement for older code
     using dictionary base classes.
     """
-    __name__ = None
+    __collection_name__ = None
     __database__ = None
 
     def __init__(self, session=None, **kwargs):
@@ -264,7 +263,7 @@ class Collection(CollectionMeta):
         if self.session:
             self.connection = self.session.connection
             self.database = self.connection[self.__database__]
-            self.collection = self.database[self.__name__]
+            self.collection = self.database[self.__collection_name__]
 
         self._build(kwargs)
         self.__setitem__ = self.__setitem_after_init__
@@ -328,7 +327,7 @@ class Collection(CollectionMeta):
         return self.collection.find_one(self) > 0
 
     def __unicode__(self):
-        out = unicode(self.__name__) + u' Object: \n'
+        out = unicode(self.__collection_name__) + u' Object: \n'
         for k in self.__keys__:
             out += u'    %s => %s\n' % (k, self.get(k))
         return out + '\n'

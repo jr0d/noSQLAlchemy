@@ -278,6 +278,7 @@ class Collection(CollectionMeta):
             if isinstance(obj, (SubCollection, ListCollection, LazyCollection)):
                 self.__keys__.append(name)
                 self[name] = obj.__class__()
+                object.__setattr__(self, name, obj.__class__())
 
         for key in kwargs.keys():
             if key in self.__keys__:

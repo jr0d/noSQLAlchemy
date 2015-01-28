@@ -11,7 +11,7 @@ requires = [
 ]
 
 setup(name='nosqlalchemy',
-      version='0.9.4',
+      version='0.9.6',
       description='Define loosly ordered schema for mongodb documents.',
       long_description=README + '\n\n' + CHANGES,
       classifiers=[

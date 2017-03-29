@@ -1,2 +1,2 @@
-from nosql import *
+from .nosql import *
 

@@ -8,11 +8,12 @@ CHANGES = open(os.path.join(here, 'CHANGES')).read()
 
 requires = [
     'pymongo',
+    'bson'
 ]
 
 setup(name='nosqlalchemy',
-      version='0.9.6',
-      description='Define loosly ordered schema for mongodb documents.',
+      version='0.9.7',
+      description='Define loosely ordered schema for mongodb documents.',
       long_description=README + '\n\n' + CHANGES,
       classifiers=[
         ],

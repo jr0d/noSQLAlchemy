@@ -1,4 +1,5 @@
 import unittest
+import sys
 
 from nosqlalchemy import (
     Collection,
@@ -10,6 +11,9 @@ from nosqlalchemy import (
     ObjectId,
     LazyCollection
 )
+
+if sys.version_info >= (3, 0):
+    unicode = str
 
 client = MongoDBConnection()
 MSession = MongoSession(client)
@@ -193,7 +197,8 @@ class TestNoSQL(unittest.TestCase):
         self.assertIsNone(MSession.query(TempCollection).find_one(
             {'test_key1': 'something'}))
         self.assertTrue(MSession.query(TempCollection).count() >= 1)
-        self.assertEqual(MSession.query(TempCollection).count({'_id': self.oid}), 1)
+        self.assertEqual(MSession.query(TempCollection).count(
+            {'_id': self.oid}), 1)
 
     def test_raw_mdi(self):
         cdb = client.get_database('charlie')
@@ -201,7 +206,7 @@ class TestNoSQL(unittest.TestCase):
         self.assertIsNotNone(col, 'Could not grab raw collection')
 
     def test_bulk_remove(self):
-        for x in xrange(10):
+        for x in range(10):
             tc = TempCollection()
             tc.test_key_1 = str(x)
             tc.test_key_2 = 'nerf'
@@ -218,11 +223,14 @@ class TestNoSQL(unittest.TestCase):
 
     def test_collection_update(self):
         tc = TempCollection.get_by_oid(self.oid)
-        update_data = {'lazy_sub_collection.module_name': 'test_collection_update'}
+        update_data = {'lazy_sub_collection.module_name':
+                       'test_collection_update'}
         tc.collection_update(update_data)
-        self.assertEqual(tc.lazy_sub_collection.module_name, 'test_collection_update')
+        self.assertEqual(tc.lazy_sub_collection.module_name,
+                         'test_collection_update')
         tc = TempCollection.get_by_oid(self.oid)
-        self.assertEqual(tc.lazy_sub_collection.module_name, 'test_collection_update')
+        self.assertEqual(tc.lazy_sub_collection.module_name,
+                         'test_collection_update')
 
     def tearDown(self):
         tc = TempCollection.get_by_oid(self.oid)

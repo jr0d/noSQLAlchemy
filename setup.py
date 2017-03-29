@@ -7,8 +7,7 @@ README = open(os.path.join(here, 'README')).read()
 CHANGES = open(os.path.join(here, 'CHANGES')).read()
 
 requires = [
-    'pymongo',
-    'bson'
+    'pymongo'
 ]
 
 setup(name='nosqlalchemy',

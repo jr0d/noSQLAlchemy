@@ -37,8 +37,7 @@ class MongoSession(object):
         collection = database[collection_obj.__collection_name__]
         now = time.time()
         collection_obj.time_created = now
-        if "time_created" not in collection_obj or\
-                not collection_obj.time_created:
+        if not isinstance(collection_obj.time_updated, (int, float)):
             collection_obj.time_updated = now
         return collection.insert(collection_obj)
 

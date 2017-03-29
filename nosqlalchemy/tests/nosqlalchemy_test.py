@@ -1,4 +1,5 @@
 import unittest
+import time
 import sys
 
 from nosqlalchemy import (
@@ -87,6 +88,19 @@ class TestNoSQL(unittest.TestCase):
     def test_mongo_create(self):
         self.assertTrue(isinstance(self.oid, ObjectId),
                         'Got incorrect type for OID, %s' % type(self.oid))
+
+    def test_mongo_create_with_manual_time_updated(self):
+        now = time.time()
+        tc = TempCollection()
+        tc2 = TempCollection()
+        tc.time_updated = 100
+        oid = MSession.add(tc)
+        oid2 = MSession.add(tc2)
+        after_add = time.time()
+        self.assertTrue(TempCollection.get_by_oid(oid).time_updated == 100)
+        auto_time_update = TempCollection.get_by_oid(oid2).time_updated
+        self.assertTrue(now < auto_time_update < after_add,
+                        "Auto time on insert was {}".format(auto_time_update))
 
     def test_mongo_get(self):
         tc = TempCollection.get_by_oid(self.oid)

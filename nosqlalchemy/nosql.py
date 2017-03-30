@@ -1,6 +1,8 @@
 import time
+import sys
+
 from bson.objectid import ObjectId
-from pymongo import MongoClient, MongoReplicaSetClient
+from pymongo import MongoClient
 
 
 __all__ = [
@@ -13,6 +15,9 @@ __all__ = [
     'LazyCollection',
     'MongoDBConnection'
 ]
+
+if sys.version_info >= (3, 0):
+    unicode = str
 
 
 class MongoSession(object):
@@ -32,7 +37,8 @@ class MongoSession(object):
         collection = database[collection_obj.__collection_name__]
         now = time.time()
         collection_obj.time_created = now
-        collection_obj.time_updated = now
+        if not isinstance(collection_obj.time_updated, (int, float)):
+            collection_obj.time_updated = now
         return collection.insert(collection_obj)
 
     def save(self, collection_obj):
@@ -51,12 +57,14 @@ class MongoSession(object):
 
     def drop_all(self, collection_cls):
         collection = self._get_collection_from_object(collection_cls())
-        collection.remove({})
+        collection.delete_many({})
 
     def update(self, collection_cls, update_spec, update_data, multi=False):
         collection = self._get_collection_from_object(collection_cls)
         update_data.update(dict(time_updated=time.time()))
-        return collection.update(update_spec, {'$set': update_data}, multi=multi)
+        return collection.update(update_spec, {'$set': update_data},
+                                 multi=multi)
+
 
 class Mquery(object):
     def __init__(self, connection, col):
@@ -103,7 +111,8 @@ class MongoDBConnection(object):
 
     def __init__(self, host_or_url='127.0.0.1:27017', replica_set='', **kwargs):
         if replica_set:
-            self.connection = MongoReplicaSetClient(host_or_url, replicaSet=replica_set, **kwargs)
+            self.connection = MongoClient(host_or_url,
+                                          replicaSet=replica_set, **kwargs)
         else:
             self.connection = MongoClient(host_or_url, **kwargs)
 
@@ -132,6 +141,7 @@ class Key(object):
         self.data_type = data_type
         self.data = None
         self.default = default
+
 
 class LazyCollection(dict):
     """
@@ -182,9 +192,11 @@ class SubCollection(SubCollectionMeta):
                         raise ValueError(
                             'attempting to populate list %s with '
                             'non-list value, %s' % (key, str(kwargs[key])))
-                    if self[key].__list_element_type__.__base__ in [SubCollection, LazyCollection, dict]:
+                    if self[key].__list_element_type__.__base__ in \
+                            [SubCollection, LazyCollection, dict]:
                         for el in kwargs[key]:
-                            self[key].append(self[key].__list_element_type__(**el))
+                            self[key].append(
+                                self[key].__list_element_type__(**el))
                     else:
                         self[key] = self[key].__class__(kwargs[key])
                 else:
@@ -294,9 +306,11 @@ class Collection(CollectionMeta):
                         raise ValueError(
                             'attempting to populate list %s with '
                             'non-list value, %s' % (key, str(kwargs[key])))
-                    if self[key].__list_element_type__.__base__ in [SubCollection, LazyCollection, dict]:
+                    if self[key].__list_element_type__.__base__ in \
+                            [SubCollection, LazyCollection, dict]:
                         for el in kwargs[key]:
-                            self[key].append(self[key].__list_element_type__(**el))
+                            self[key].append(
+                                self[key].__list_element_type__(**el))
                     else:
                         self[key] = self[key].__class__(kwargs[key])
                 else:
@@ -347,7 +361,8 @@ class Collection(CollectionMeta):
 
     def collection_update(self, update_data):
         if not self.object_id:
-            raise CollectionInstanceException('This instance is not mapped to an object_id.')
+            raise CollectionInstanceException(
+                'This instance is not mapped to an object_id.')
         spec = dict(_id=self.object_id)
         update_data.update(dict(time_updated=time.time()))
         self.collection.update(spec, {'$set': update_data})
